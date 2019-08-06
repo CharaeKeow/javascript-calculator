@@ -22,7 +22,7 @@ class Buttons extends React.Component {
         <button id="multiply" value="*" onClick={this.props.handleInput}>x</button>
         <button id="divide" value="/" onClick={this.props.handleInput}>/</button>
         <button id="clear" onClick={this.props.clearDisplay}>AC</button>
-        <button id="decimal" value="." onClick={this.props.handleDecimal}>.</button>
+        <button id="decimal" value="." onClick={this.props.handleInput}>.</button>
       </div>
     );    
   }
@@ -33,7 +33,7 @@ class Display extends React.Component {
     return (
       <div id="display">        
         <p className="display-input">{this.props.displayInput}</p>
-        <p className="display-result">{this.props.display}</p>
+        <p className="display-result">{this.props.result}</p>
       </div>
     );
   }
@@ -43,37 +43,88 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      display: '0',
-      input: '0',
+      result: '0',
+      input: '',
+      hasAnswer: 0,
+      hasDecimal: 0,
+      hasOperator: 0
     }
     this.handleInput = this.handleInput.bind(this);
     this.clearDisplay = this.clearDisplay.bind(this);
     this.handleCalculation = this.handleCalculation.bind(this);
     this.infixToPostFix = this.infixToPostFix.bind(this);
-    this.parsePostFix = this.parsePostFix.bind(this);
+    this.parsePostFix = this.parsePostFix.bind(this);        
+    this.updateState = this.updateState.bind(this);
+  }
+
+  /* I can't find a better name, so will stick with this for now.
+     The function is self-descriptive, it will update the input state
+     according to user input (i.e numbers, decimal, operator)
+  */
+  updateState(e) {
+    if (this.state.hasAnswer) {
+      this.setState({input: e.target.value});
+    }
+
+    if (this.state.hasOperator) {
+      this.setState({
+        input: this.state.input.replace(this.state.input[this.state.input.length - 2], e.target.value),
+        hasOperator: 1        
+      })
+    }
+
+    if (this.state.input === "0" && e.target.value === "0") {
+      this.setState({
+        input: "0",
+        hasOperator: 0
+      });
+    } else if (this.state.input === "0" && e.target.value > "0") {
+      this.setState({
+        input: e.target.value
+      })
+    } else if (e.target.value >= "0") {
+      this.setState({
+        input: this.state.input + e.target.value,
+        hasOperator: 0
+      })
+    } else if (e.target.value === ".") {
+      if (!this.state.hasDecimal) {
+        this.setState({
+          input: this.state.input + e.target.value,
+          hasDecimal: 1
+        })
+      } 
+    } else if (!this.state.hasOperator) {      
+      this.setState({
+        input: this.state.input + " " + e.target.value + " ",
+        hasDecimal: 0,
+        hasOperator: 1
+      });
+    }
   }
 
   //Handle inpue - i.e. append it to input state
   handleInput(e) {
-    if (this.state.input === "0" && e.target.value === "0") {
-      this.setState({
-        input: '0'
-      });
+    if (!this.state.hasAnswer) {
+     this.updateState(e);
     } else {
-      if (this.state.input === "0") {
+      if (e.target.value >= "0") {
         this.setState({
-          input: e.target.value
-        });
-      } else if (e.target.value > "0") {
+          input: e.target.value,
+          hasAnswer: 0
+        });       
+      } else if (e.target.value === ".") {
         this.setState({
-          input: this.state.input + e.target.value
+          input: this.state.result + e.target.value,
+          hasAnswer: 0
         });
       } else {
         this.setState({
-          input: this.state.input + " " + e.target.value + " "
-        })
+          input: this.state.result + " " + e.target.value + " ",
+          hasAnswer: 0
+        });
       }
-    }
+    } 
   }
 
   clean(e) {
@@ -85,7 +136,12 @@ class App extends React.Component {
   }
 
   clearDisplay() {
-    this.setState({display: '', input: '0'});
+    this.setState({
+      result: '0', 
+      input: '',
+      hasAnswer: 0,
+      hasDecimal: 0
+    });
   }  
 
   //Check if the string is  numeric or not
@@ -95,8 +151,7 @@ class App extends React.Component {
 
   infixToPostFix() {
     let equation = this.state.input;
-    console.log("Equation pre-split: " + equation);
-    //let equation = "3 + 12 * 5 - 4";
+    //let equation = "- 2";
     //let equation = "3 + 5 * 2 - 4";
     //console.log(equation);
     let outputQueue = ""; //FIFO
@@ -117,7 +172,10 @@ class App extends React.Component {
       "-": 2
     };
     
-    equation = equation.split(" ");
+    //To filter out any unwanted empty item in the array that could
+    //affect our final result
+    equation = equation.split(" ").filter(item => item !== "");
+    
     console.log(equation);
     for (let i = 0; i < equation.length; i++) {
       let token = equation[i];
@@ -139,7 +197,7 @@ class App extends React.Component {
         operatorStack.push(operator1);
       }
     }
-  
+    console.log("Equation pre-split: " + equation);
     if (operatorStack.length > 0) {
       outputQueue += operatorStack.reverse().join(" ");
     }
@@ -158,33 +216,55 @@ class App extends React.Component {
       } else {
         let operand1 = result.pop();
         let operand2 = result.pop();
-        //console.log(operand1);
-        //console.log(operand2);
-        switch (e[i]) {
-          case "+":
-            result.push(parseInt(operand1) + parseInt(operand2));
-            break;
-          case "-":
-            result.push(parseInt(operand2) - parseInt(operand1));
-            break;
-          case "*":
-            result.push(parseInt(operand1) * parseInt(operand2));
-            break;
-          case "/":
-            result.push(parseInt(operand2) / parseInt(operand1));
-            break;
-        }
+        console.log("a: " + operand1);
+        console.log("b: " + operand2);
+
+         if (operand2 === undefined && (e[i] === "+" || e[i] === "-")) {          
+          console.log(e[i]);
+          result.push(e[i] + parseFloat(operand1));                             
+        } else {
+          switch (e[i]) {
+            case "+":
+              result.push(parseFloat(operand1) + parseFloat(operand2));
+              break;
+            case "-":
+              result.push(parseFloat(operand2) - parseFloat(operand1));
+              break;
+            case "*":
+              result.push(parseFloat(operand1) * parseFloat(operand2));
+              break;
+            case "/":
+              if (operand1 === "0") {
+                result.push("Math ERROR");
+                break;
+              }
+              result.push(parseFloat(operand2) / parseFloat(operand1));
+              break;
+            default: //Usually in case there is only a number (operand) entered            
+              result.push(parseFloat(operand1));
+          }
+        } 
       }
-    }    
+    }     
     return result.pop();
   }
 
-  handleCalculation(e) {
-    //let equation = "3+4*5-2"; //Because we don't want to change the state 
+  handleCalculation(e) {    
     let postfix = this.infixToPostFix();
     console.log(postfix);
     let result = this.parsePostFix(postfix);
     console.log(result);
+    if (isNaN(result)) {
+      this.setState({
+        result: "Math ERROR",
+        hasAnswer: 1
+      })
+    } else {
+      this.setState({
+        result: result,
+        hasAnswer: 1
+      })
+    }    
   }
 
 
@@ -194,7 +274,8 @@ class App extends React.Component {
       <div className="main-wrapper">
         <h1>Javascript Calculator</h1>
         <Display 
-          displayInput={this.state.input}
+          displayInput = {this.state.input}
+          result = {this.state.result}
         />
         <Buttons 
           handleInput = {this.handleInput}

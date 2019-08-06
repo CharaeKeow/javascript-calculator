@@ -15,11 +15,13 @@ button {
     border: 1px solid #ddd;
     width: 150px;
     background-color: #ddd;
+    height: 20px;
 }
 
 .display-result {
-    border: 1px solid dodgerblue;
+    border: 1px solid greenyellow;
     width: 150px;
-    background-color: dodgerblue;
+    background-color: greenyellow;
     height: 20px;
+    text-align: right;
 }
