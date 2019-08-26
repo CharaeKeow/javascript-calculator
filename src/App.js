@@ -339,10 +339,12 @@ class App extends React.Component {
   }
 
   render() {
-    return (
+    return (      
       <div className="main-wrapper">
+        <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet"></link>
+
         <h1>JavaScript Calculator</h1>
-        <h3>A really simple one from a lazy guy</h3>
+        
         <div className="calculator">
           <Display
             displayInput = {this.state.input}
@@ -359,6 +361,7 @@ class App extends React.Component {
         <footer>
           <p>Coded and designed with <FontAwesomeIcon icon={faHeart} className="heart" /> by <a href="https://github.com/CharaeKeow" target="_blank" rel="noopener noreferrer">Charae Keow.</a></p>
           <p>The source code is available on <a href="https://github.com/CharaeKeow/react-drum-machine/tree/power-button" target="_blank" rel="noopener noreferrer">Github.</a></p>
+          <p>NOTE: This calculator is not completely bug-free (due to my laziness  <i class="em em-grimacing"></i>) <br></br> so if you found one, <a href="https://twitter.com/messages/4562825420-4562825420?text=" target="_blank" rel="noopener noreferrer">do tell me.</a></p>
         </footer>
       </div>
     );

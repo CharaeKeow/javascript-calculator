@@ -19,15 +19,11 @@ body {
 
 .main-wrapper h1, h3 {
     text-align: center;
+    position: relative;
 }
 
 h1 {
-    margin-bottom: 10px;
-}
-
-h3 { 
-    margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: 20px;    
 }
 
 a {
@@ -50,6 +46,7 @@ a:hover {
     justify-content: center;
     border: 1px solid inherit;
     border-radius: 5px;
+    margin: 0 auto;
 }
 
 button {
@@ -110,4 +107,15 @@ button:hover {
 
 .btn-operator {
     background-color: rgb(119, 119, 119);
+}
+
+footer {    
+    text-align: center;
+    margin: 0 auto;
+    align-self: center;
+    justify-self: center;
+}
+
+footer .heart{
+    color: rgb(219, 24, 24);
 }
