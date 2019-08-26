@@ -1,28 +1,41 @@
 import React from 'react';
 import './App.css';
-
+import ReactFCCTest from 'react-fcctest';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faHeart} from '@fortawesome/free-solid-svg-icons';
 
 class Buttons extends React.Component {
+  
   render() {
     return(
       <div className="btn-container">
-        <button id="zero" value="0" onClick={this.props.handleInput}>0</button>
-        <button id="one" value="1" onClick={this.props.handleInput}>1</button>
-        <button id="two" value="2" onClick={this.props.handleInput}>2</button>
-        <button id="three" value="3" onClick={this.props.handleInput}>3</button>
-        <button id="four" value="4" onClick={this.props.handleInput}>4</button>
-        <button id="five" value="5" onClick={this.props.handleInput}>5</button>
-        <button id="six" value="6" onClick={this.props.handleInput}>6</button>
-        <button id="seven" value="7" onClick={this.props.handleInput}>7</button>
-        <button id="eight" value="8" onClick={this.props.handleInput}>8</button>
-        <button id="nine" value="9" onClick={this.props.handleInput}>9</button>
-        <button id="equals" value="=" onClick={this.props.handleCalculation}>=</button>
-        <button id="add" value="+" onClick={this.props.handleInput}>+</button>
-        <button id="subtract" value="-" onClick={this.props.handleInput}>-</button>
-        <button id="multiply" value="*" onClick={this.props.handleInput}>x</button>
-        <button id="divide" value="/" onClick={this.props.handleInput}>/</button>
-        <button id="clear" onClick={this.props.clearDisplay}>AC</button>
-        <button id="decimal" value="." onClick={this.props.handleInput}>.</button>
+        <div className="row-1 row">
+          <button className="btn-clear" id="clear" onClick={this.props.clearDisplay}>AC</button>
+          <button className="btn-operator" id="multiply" value="*" onClick={this.props.handleOperator}>x</button>
+          <button className="btn-operator" id="divide" value="/" onClick={this.props.handleOperator}>/</button>
+        </div>
+        <div className="row-2 row">
+          <button className="btn-num" id="seven" value="7" onClick={this.props.handleInput}>7</button>
+          <button className="btn-num" id="eight" value="8" onClick={this.props.handleInput}>8</button>
+          <button className="btn-num" id="nine" value="9" onClick={this.props.handleInput}>9</button>
+          <button className="btn-operator" id="subtract" value="-" onClick={this.props.handleOperator}>-</button>
+        </div>
+        <div className="row-3 row">
+          <button className="btn-num" id="four" value="4" onClick={this.props.handleInput}>4</button>
+          <button className="btn-num" id="five" value="5" onClick={this.props.handleInput}>5</button>
+          <button className="btn-num" id="six" value="6" onClick={this.props.handleInput}>6</button>
+          <button className="btn-operator" id="add" value="+" onClick={this.props.handleOperator}>+</button>
+        </div>
+        <div className="row-4 row">          
+          <button className="btn-num" id="one" value="1" onClick={this.props.handleInput}>1</button>
+          <button className="btn-num" id="two" value="2" onClick={this.props.handleInput}>2</button>
+          <button className="btn-num" id="three" value="3" onClick={this.props.handleInput}>3</button>          
+          <button className="btn-equal" id="equals" value="=" onClick={this.props.handleCalculation}>=</button>
+        </div>
+        <div className="row-5 row">
+          <button className="btn-num" id="zero" value="0" onClick={this.props.handleInput}>0</button>
+          <button className="btn-num" id="decimal" value="." onClick={this.props.handleInput}>.</button>          
+        </div>       
       </div>
     );    
   }
@@ -31,9 +44,8 @@ class Buttons extends React.Component {
 class Display extends React.Component {
   render() {
     return (
-      <div id="display">        
-        <p className="display-input">{this.props.displayInput}</p>
-        <p className="display-result">{this.props.result}</p>
+      <div className="display">        
+        <p id="display" className="display-input">{this.props.displayInput}</p>
       </div>
     );
   }
@@ -43,13 +55,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: '0',
       input: '',
       hasAnswer: 0,
       hasDecimal: 0,
-      hasOperator: 0
+      hasOperator: 0,
+      hasMinus:  0,
     }
     this.handleInput = this.handleInput.bind(this);
+    this.handleOperator = this.handleOperator.bind(this);
     this.clearDisplay = this.clearDisplay.bind(this);
     this.handleCalculation = this.handleCalculation.bind(this);
     this.infixToPostFix = this.infixToPostFix.bind(this);
@@ -57,50 +70,85 @@ class App extends React.Component {
     this.updateState = this.updateState.bind(this);
   }
 
-  /* I can't find a better name, so will stick with this for now.
-     The function is self-descriptive, it will update the input state
-     according to user input (i.e numbers, decimal, operator)
-  */
   updateState(e) {
     if (this.state.hasAnswer) {
-      this.setState({input: e.target.value});
+      this.setState({
+        input: this.state.input + e.target.value,
+        
+      });
     }
 
     if (this.state.hasOperator) {
       this.setState({
-        input: this.state.input.replace(this.state.input[this.state.input.length - 2], e.target.value),
-        hasOperator: 1        
-      })
-    }
-
-    if (this.state.input === "0" && e.target.value === "0") {
-      this.setState({
-        input: "0",
-        hasOperator: 0
-      });
-    } else if (this.state.input === "0" && e.target.value > "0") {
-      this.setState({
-        input: e.target.value
-      })
-    } else if (e.target.value >= "0") {
-      this.setState({
         input: this.state.input + e.target.value,
-        hasOperator: 0
-      })
-    } else if (e.target.value === ".") {
-      if (!this.state.hasDecimal) {
+        hasOperator: 0,
+        
+      });
+    } else {
+      if (this.state.input === "0" && e.target.value === "0") {
+        this.setState({
+          input: "0",
+          
+        });      
+      } else if (this.state.input === "0" && e.target.value > "0") {
+        this.setState({
+          input: e.target.value,
+          
+        })
+      } else if (e.target.value >= "0") {      
         this.setState({
           input: this.state.input + e.target.value,
-          hasDecimal: 1
-        })
+          
+        });      
+      } else if (e.target.value === "." && !this.state.hasDecimal) {      
+        this.setState({
+          input: this.state.input + e.target.value,
+          hasDecimal: 1,
+          
+        });      
       } 
-    } else if (!this.state.hasOperator) {      
+    }
+  }
+
+  handleOperator(e) {
+    if (this.state.hasAnswer) {
       this.setState({
-        input: this.state.input + " " + e.target.value + " ",
-        hasDecimal: 0,
-        hasOperator: 1
+        input: this.state.input + e.target.value,
+        hasAnswer: 0   
       });
     }
+
+    if (!this.state.hasOperator) {     
+      this.setState({
+        input: this.state.input + e.target.value,
+        hasOperator: 1,
+        hasDecimal: 0
+      });}
+     else if (this.state.hasOperator && e.target.value === "-") {
+      this.setState({
+        hasOperator: 0,
+        hasMinus: 1,
+        input: this.state.input + e.target.value,
+        hasOperator: 1,
+        hasDecimal: 0
+      })        
+    } else if (this.state.hasOperator && e.target.value === this.state.input[this.state.input.length - 1]) {
+      this.setState({
+        hasOperator: 1,
+        input: this.state.input
+      })
+    } else if (this.state.hasOperator && e.target.value !== "-") {
+      this.setState({
+        hasOperator: 1,
+        input: this.state.input.slice(0, this.state.input.length - 2) + e.target.value
+      })
+    } else {
+      this.setState({
+        input: this.state.input.slice(0, this.state.input.length - 1) + e.target.value,
+        hasOperator: 1,
+        hasDecimal: 0
+      })
+    }      
   }
 
   //Handle inpue - i.e. append it to input state
@@ -111,22 +159,23 @@ class App extends React.Component {
       if (e.target.value >= "0") {
         this.setState({
           input: e.target.value,
-          hasAnswer: 0
+          
         });       
       } else if (e.target.value === ".") {
         this.setState({
           input: this.state.result + e.target.value,
-          hasAnswer: 0
+          
         });
       } else {
         this.setState({
           input: this.state.result + " " + e.target.value + " ",
-          hasAnswer: 0
+          
         });
       }
     } 
-  }
+  }  
 
+  //Remove empty string in the array
   clean(e) {
     for (let i = 0; i < e.length; i++) {
       if (e[i] === "") {
@@ -138,9 +187,9 @@ class App extends React.Component {
   clearDisplay() {
     this.setState({
       result: '0', 
-      input: '',
+      input: '0',
       hasAnswer: 0,
-      hasDecimal: 0
+      hasDecimal: 0,
     });
   }  
 
@@ -149,11 +198,17 @@ class App extends React.Component {
     return !isNaN(parseFloat(e)) && isFinite(e);
   }
 
-  infixToPostFix() {
-    let equation = this.state.input;
-    //let equation = "- 2";
+  /*
+    Convert the inputted infix to postfix using Shunting Yard algorithm. 
+    The postfix will then be parsed later
+  */
+  infixToPostFix(e) {
+    let equation = e;
+    let arr = [];    
+    
+    //let equation = "3 + 5 * 6 - 2 / 4";
     //let equation = "3 + 5 * 2 - 4";
-    //console.log(equation);
+    console.log(equation);
     let outputQueue = ""; //FIFO
     let operatorStack = []; //LIFO
     let operators = "^*/+-";
@@ -171,6 +226,15 @@ class App extends React.Component {
       "+": 2,
       "-": 2
     };
+    for (let i=0; i<equation.length; i++) {
+      if (operators.indexOf(equation[i]) > -1) {
+        let temp = " " + equation[i] + " ";
+        arr.push(temp);
+      } else {
+        arr.push(equation[i]);
+      }
+    }
+    equation = arr.join("");
     
     //To filter out any unwanted empty item in the array that could
     //affect our final result
@@ -221,7 +285,7 @@ class App extends React.Component {
 
          if (operand2 === undefined && (e[i] === "+" || e[i] === "-")) {          
           console.log(e[i]);
-          result.push(e[i] + parseFloat(operand1));                             
+          result.push(e[i] + parseFloat(operand1));
         } else {
           switch (e[i]) {
             case "+":
@@ -250,38 +314,52 @@ class App extends React.Component {
   }
 
   handleCalculation(e) {    
-    let postfix = this.infixToPostFix();
-    console.log(postfix);
-    let result = this.parsePostFix(postfix);
-    console.log(result);
-    if (isNaN(result)) {
+    if (this.state.hasMinus) {
       this.setState({
-        result: "Math ERROR",
-        hasAnswer: 1
-      })
+        input: eval(this.state.input)
+      });
     } else {
-      this.setState({
-        result: result,
-        hasAnswer: 1
-      })
-    }    
+      let postfix = this.infixToPostFix(this.state.input);
+      console.log(postfix);
+      let result = this.parsePostFix(postfix);
+      console.log(result);
+      if (isNaN(result)) {
+        this.setState({
+          
+          input: "Math ERROR",
+          hasAnswer: 1
+        })
+      } else {
+        this.setState({
+          input: result,
+          hasAnswer: 1,
+        });
+      } 
+    }
   }
-
-
 
   render() {
     return (
       <div className="main-wrapper">
-        <h1>Javascript Calculator</h1>
-        <Display 
-          displayInput = {this.state.input}
-          result = {this.state.result}
-        />
-        <Buttons 
-          handleInput = {this.handleInput}
-          clearDisplay = {this.clearDisplay}
-          handleCalculation = {this.handleCalculation}
-        /> 
+        <h1>JavaScript Calculator</h1>
+        <h3>A really simple one from a lazy guy</h3>
+        <div className="calculator">
+          <Display
+            displayInput = {this.state.input}
+          />
+          <Buttons 
+            handleInput = {this.handleInput}
+            clearDisplay = {this.clearDisplay}
+            handleCalculation = {this.handleCalculation}
+            keyDown = {this.handleKeyDown}
+            handleOperator = {this.handleOperator}
+          /> 
+          <ReactFCCTest />
+        </div>
+        <footer>
+          <p>Coded and designed with <FontAwesomeIcon icon={faHeart} className="heart" /> by <a href="https://github.com/CharaeKeow" target="_blank" rel="noopener noreferrer">Charae Keow.</a></p>
+          <p>The source code is available on <a href="https://github.com/CharaeKeow/react-drum-machine/tree/power-button" target="_blank" rel="noopener noreferrer">Github.</a></p>
+        </footer>
       </div>
     );
   }
